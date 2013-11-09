@@ -1,7 +1,9 @@
 package com.yhack.WorkIt;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.os.*;
@@ -12,9 +14,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+import android.bluetooth.BluetoothAdapter;
+import android.widget.Toast;
+
+import java.util.Set;
 
 public class MainActivity extends ActionBarActivity {
+
+    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_IS_PAIRED = 2;
+
+    private static BluetoothAdapter bluetoothAdapter;
+
+    private BluetoothThread btThread;
+
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +37,24 @@ public class MainActivity extends ActionBarActivity {
         StrictMode.enableDefaults();
        // StrictMode.setThreadPolicy(               new StrictMode.ThreadPolicy.Builder().detectAll());
 
+        context = getApplicationContext();
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null)
+        {
+            Toast.makeText(context, "Bluetooth is not available on this Device", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        else if (!bluetoothAdapter.isEnabled())
+        {
+            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
+        }
+        else
+        {
+            connectBt();
+        }
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
@@ -30,6 +62,41 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == REQUEST_ENABLE_BT)
+        {
+            Toast.makeText(context, "Bluetooth enabled!", Toast.LENGTH_SHORT).show();
+            connectBt();
+        }
+    }
+
+    public void connectBt()
+    {
+        String targetName = "Band1";
+        Set<BluetoothDevice> devs = bluetoothAdapter.getBondedDevices();
+        BluetoothDevice dev = null;
+        if (devs != null)
+        {
+            for (BluetoothDevice d : devs)
+            {
+                if (d != null && d.getName().equals(targetName))
+                {
+                    dev = d;
+                    break;
+                }
+            }
+        }
+
+        Log.d("myapp", "TEST");
+
+        if (dev != null)
+        {
+            btThread = new BluetoothThread(dev);
+            btThread.start();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -28,32 +28,42 @@ import java.util.Set;
 public class MainActivity extends ActionBarActivity {
 
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int REQUEST_IS_PAIRED = 2;
 
     private static boolean hasBluetooth = true;
 
     private static BluetoothAdapter bluetoothAdapter;
 
-    private BluetoothThread btThread;
-    private Handler btHandler;
+    private BluetoothThread btThreadLeft;
+    private Handler btHandlerLeft;
+
+    private BluetoothThread btThreadRight;
+    private Handler btHandlerRight;
 
     private Context context;
 
-    private ArrayList<SensorData> prevData;
+    private int numPunchesLeft;
+    private int numPunchesRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.enableDefaults();
-        prevData = new ArrayList<SensorData>();
 
-        btHandler = new Handler()
+        btHandlerLeft = new Handler()
         {
           public void handleMessage(Message m)
           {
-            updateText((String)m.obj);
+            updateTextLeft((String)m.obj);
           }
+        };
+
+        btHandlerRight = new Handler()
+        {
+            public void handleMessage(Message m)
+            {
+                updateTextRight((String)m.obj);
+            }
         };
 
         context = getApplicationContext();
@@ -90,27 +100,34 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void updateText(String s)
+    private void updateTextLeft(String s)
     {
-        if (prevData.size() > 50)
-            prevData.remove(0);
+        TextView tv = (TextView)findViewById(R.id.textView);
 
-        SensorData data = new SensorData(s);
-        prevData.add(data);
-
-        float maxX = 0, maxY = 0, maxZ = 0;
-        for (SensorData sd : prevData)
+        if (s.equals("P"))
         {
-            if (Math.abs(sd.getAx()) > Math.abs(maxX))
-                maxX = sd.getAx();
-            if (Math.abs(sd.getAy()) > Math.abs(maxY))
-                maxY = sd.getAy();
-            if (Math.abs(sd.getAz()) > Math.abs(maxZ))
-                maxZ = sd.getAz();
+            numPunchesLeft++;
         }
 
+        tv.setText("NUMBER OF PUNCHES: " + numPunchesLeft);
+
+        if (numPunchesLeft == 10 || numPunchesLeft == 11)
+            btThreadLeft.vibe();
+    }
+
+    private void updateTextRight(String s)
+    {
         TextView tv = (TextView)findViewById(R.id.textView);
-        tv.setText(new SensorData(s).toString() + "\n" + maxX + "\n" + maxY + "\n" + maxZ);
+
+        if (s.equals("P"))
+        {
+            numPunchesRight++;
+        }
+
+        tv.setText("NUMBER OF PUNCHES: " + numPunchesRight);
+
+        if (numPunchesRight == 10 || numPunchesRight == 11)
+            btThreadRight.vibe();
     }
 
     public void connectBt()
@@ -118,27 +135,36 @@ public class MainActivity extends ActionBarActivity {
         if (!hasBluetooth)
             return;
 
-        String targetName = "Band1";
+        String targetNameLeft = "HC-06";
+        String targetNameRight = "Band1";
         Set<BluetoothDevice> devs = bluetoothAdapter.getBondedDevices();
-        BluetoothDevice dev = null;
+        BluetoothDevice devLeft = null, devRight = null;
         if (devs != null)
         {
             for (BluetoothDevice d : devs)
             {
-                if (d != null && d.getName().equals(targetName))
+                if (d != null && d.getName().equals(targetNameLeft))
                 {
-                    dev = d;
-                    break;
+                    devLeft = d;
+                }
+                if (d != null && d.getName().equals(targetNameRight))
+                {
+                    devRight = d;
                 }
             }
         }
 
         //Log.d("myapp", "TEST");
 
-        if (dev != null)
+        if (devLeft != null)
         {
-            btThread = new BluetoothThread(dev, btHandler);
-            btThread.start();
+            btThreadLeft = new BluetoothThread(devLeft, btHandlerLeft);
+            btThreadLeft.start();
+        }
+        if (devRight != null)
+        {
+            btThreadRight = new BluetoothThread(devRight, btHandlerRight);
+            btThreadRight.start();
         }
     }
 

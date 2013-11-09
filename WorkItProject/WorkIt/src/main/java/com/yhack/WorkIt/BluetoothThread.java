@@ -2,6 +2,7 @@ package com.yhack.WorkIt;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -22,8 +23,11 @@ public class BluetoothThread extends Thread implements Runnable
     private static final UUID THIS_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private InputStream btInStream;
+    private OutputStream btOutStream;
 
     private Handler mHandler;
+
+    private boolean vibe;
 
     public BluetoothThread(BluetoothDevice device, Handler handler)
     {
@@ -65,10 +69,12 @@ public class BluetoothThread extends Thread implements Runnable
         }
 
         InputStream inStream = null;
+        OutputStream outStream = null;
 
         try
         {
             inStream = btSocket.getInputStream();
+            outStream = btSocket.getOutputStream();
         }
         catch (IOException e)
         {
@@ -76,35 +82,46 @@ public class BluetoothThread extends Thread implements Runnable
         }
 
         btInStream = inStream;
+        btOutStream = outStream;
 
         int errorCount = 0;
 
         byte nextByte;
-        ArrayList<Byte> packet = new ArrayList<Byte>();
-        byte[] buffer;
+       // ArrayList<Byte> packet = new ArrayList<Byte>();
+        //byte[] buffer;
 
         while (true)
         {
             try
             {
                 nextByte = (byte)btInStream.read();
-                if (nextByte == 'A')
+                if (nextByte == 'P')
                 {
-                    buffer = new byte[packet.size()];
+                    Message m = Message.obtain();
+                    m.obj = "P";
+                    mHandler.sendMessage(m);
+                    /*buffer = new byte[packet.size()];
                     for (int i = 0; i < buffer.length; i++)
                         buffer[i] = packet.get(i);
 
                     Message m = Message.obtain();
                     m.obj = new String(buffer);
                     mHandler.sendMessage(m);
-                    packet.clear();
+                    packet.clear();*/
                 }
                 else
                 {
-                    packet.add(nextByte);
+                    //packet.add(nextByte);
                 }
 
                 errorCount = 0;
+
+                if (vibe)
+                {
+                    Log.d("nop", "VIBE1");
+                    btOutStream.write(new byte[] { 'v' });
+                    vibe = false;
+                }
             }
             catch (Exception e)
             {
@@ -118,6 +135,12 @@ public class BluetoothThread extends Thread implements Runnable
                 }
             }
         }
+    }
+
+    public void vibe()
+    {
+        this.vibe = true;
+        Log.d("nop", "VIBE1");
     }
 
     public void cancel()

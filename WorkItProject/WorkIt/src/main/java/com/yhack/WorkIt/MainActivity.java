@@ -1,5 +1,6 @@
 package com.yhack.WorkIt;
 
+import com.wolfram.alpha.*;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -8,14 +9,18 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.os.*;
 import android.app.*;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.util.*;
+import android.graphics.*;
+import android.view.*;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.bluetooth.BluetoothAdapter;
 import android.widget.Toast;
+import android.widget.*;
+
+import java.util.ArrayList;
 
 import java.util.Set;
 
@@ -35,7 +40,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.enableDefaults();
-       // StrictMode.setThreadPolicy(               new StrictMode.ThreadPolicy.Builder().detectAll());
 
         context = getApplicationContext();
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -121,11 +125,15 @@ public class MainActivity extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public class PlaceholderFragment extends Fragment {
 
         public PlaceholderFragment() {
-            AlphaAPISample alpha = new AlphaAPISample();
-            Log.d("myapp",alpha.alpha());
+
+            ImageView graph = (ImageView)findViewById(R.id.imageView);
+            WAQueryGen q = new WAQueryGen("pi");
+            ArrayList<WAImage> images = q.getAllImages();
+           
+
         }
 
         @Override

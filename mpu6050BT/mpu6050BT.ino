@@ -39,13 +39,15 @@
       //accelgyro.getRotation(&gx, &gy, &gz);
 
         // display tab-separated accel/gyro x/y/z values
-        mySerial.print("a/g:\t");
-        mySerial.print(ax); mySerial.print("\t");
-        mySerial.print(ay); mySerial.print("\t");
-        mySerial.print(az); mySerial.print("\t");
-        mySerial.print(gx); mySerial.print("\t");
-        mySerial.print(gy); mySerial.print("\t");
-        mySerial.println(gz);
+       // mySerial.print("a/g:\t");
+        mySerial.print("A");
+        mySerial.print(ax); mySerial.print(",");
+        mySerial.print(ay); mySerial.print(",");
+        mySerial.print(az); mySerial.print(",");
+        mySerial.print("G");
+        mySerial.print(gx); mySerial.print(",");
+        mySerial.print(gy); mySerial.print(",");
+        mySerial.print(gz);
         
         //digitalWrite(motorpin, vibrate);
         //vibrate = !vibrate;

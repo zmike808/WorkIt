@@ -34,6 +34,7 @@ public class MainActivity extends ActionBarActivity {
     private static BluetoothAdapter bluetoothAdapter;
 
     private BluetoothThread btThread;
+    private Handler btHandler;
 
     private Context context;
 
@@ -42,6 +43,14 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.enableDefaults();
+
+        btHandler = new Handler()
+        {
+          public void handleMessage(Message m)
+          {
+            updateText((String)m.obj);
+          }
+        };
 
         context = getApplicationContext();
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -77,6 +86,12 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private void updateText(String s)
+    {
+        TextView tv = (TextView)findViewById(R.id.textView);
+        tv.setText(s);
+    }
+
     public void connectBt()
     {
         if (!hasBluetooth)
@@ -101,7 +116,7 @@ public class MainActivity extends ActionBarActivity {
 
         if (dev != null)
         {
-            btThread = new BluetoothThread(dev);
+            btThread = new BluetoothThread(dev, btHandler);
             btThread.start();
         }
     }

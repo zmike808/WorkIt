@@ -5,8 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import android.os.Handler;
+
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Message;
 import android.util.Log;
 
 /**
@@ -20,11 +23,12 @@ public class BluetoothThread extends Thread implements Runnable
 
     private InputStream btInStream;
 
-    private String currentData;
+    private Handler mHandler;
 
-    public BluetoothThread(BluetoothDevice device)
+    public BluetoothThread(BluetoothDevice device, Handler handler)
     {
         btDevice = device;
+        mHandler = handler;
 
         BluetoothSocket tempSocket = null;
         try
@@ -92,8 +96,9 @@ public class BluetoothThread extends Thread implements Runnable
                     for (int i = 0; i < buffer.length; i++)
                         buffer[i] = packet.get(i);
 
-                    currentData = new String(buffer);
-                    Log.d("nop", currentData);
+                    Message m = Message.obtain();
+                    m.obj = new String(buffer);
+                    mHandler.sendMessage(m);
                     packet.clear();
                 }
                 packet.add(nextByte);
@@ -121,10 +126,5 @@ public class BluetoothThread extends Thread implements Runnable
             btSocket.close();
         }
         catch (IOException e) { }
-    }
-
-    public String getCurrentData()
-    {
-        return currentData;
     }
 }

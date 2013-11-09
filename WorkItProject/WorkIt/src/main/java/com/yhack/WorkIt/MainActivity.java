@@ -172,19 +172,19 @@ public class MainActivity extends ActionBarActivity {
             ImageView graph = (ImageView)findViewById(R.id.imageView);
 
             //manual switching between cal and min for now
-            WAQueryGen q = new WAQueryGen("boxing 1000cal");
+            String mode="boxing";
+            int val=1000;
+            String given="min";
+            String qry = mode+val+given;
+            WAQueryGen q = new WAQueryGen(qry);
             //WAQueryGen q = new WAQueryGen("boxing 1000min");
 
             ArrayList<WAImage> images = q.getAllImages();
             ArrayList<String> strings = q.getAllText();
-
-            //similar manual switching here
-            String given="cal";
-            //String given="time";
-
             String x="";
             String result="";
-            if (given.equals("cal")) {x="time";} else {x="energy expenditure";}
+            if (given.equals("cal")) {x="time"; Log.d("myapp","If you want to burn "+val+" Cal while "+mode+":\n");}
+            else {x="energy expenditure"; Log.d("myapp","If you work out for "+val+" minutes while "+mode+":\n");}
 
             for(String s : strings)
             {
@@ -196,9 +196,9 @@ public class MainActivity extends ActionBarActivity {
                 {
                     result=value;
                     if(x=="time")
-                        Log.d("myapp","Workout Time: "+result);
+                        Log.d("myapp","You should work out for: "+result);
                     else
-                        Log.d("myapp","Calorie Burn: "+result);
+                        Log.d("myapp","You will burn: "+result);
                     //Log.d("myapp","parsed: "+ result.split("fat")[0]);
                     break;
                 }

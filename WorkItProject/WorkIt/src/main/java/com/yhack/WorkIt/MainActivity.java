@@ -149,10 +149,18 @@ public class MainActivity extends ActionBarActivity {
         public PlaceholderFragment() {
 
             ImageView graph = (ImageView)findViewById(R.id.imageView);
+
+            //manual switching between cal and min for now
             WAQueryGen q = new WAQueryGen("boxing 1000cal");
+            //WAQueryGen q = new WAQueryGen("boxing 1000min");
+
             ArrayList<WAImage> images = q.getAllImages();
             ArrayList<String> strings = q.getAllText();
+
+            //similar manual switching here
             String given="cal";
+            //String given="time";
+
             String x="";
             String result="";
             if (given.equals("cal")) {x="time";} else {x="energy expenditure";}
@@ -161,7 +169,7 @@ public class MainActivity extends ActionBarActivity {
             {
                 String[] parts = s.split("\\|");
                 String key = parts[0].trim();
-                String value = parts[1].substring(1,parts[1].length()-1).split("  ")[0];
+                String value = parts[1].substring(1,parts[1].length()-1).split("fat")[0].split("  ")[0];
                 //Log.d("myapp",s+"\n");
                 if(key.equals(x))
                 {
@@ -170,6 +178,7 @@ public class MainActivity extends ActionBarActivity {
                         Log.d("myapp","Workout Time: "+result);
                     else
                         Log.d("myapp","Calorie Burn: "+result);
+                    //Log.d("myapp","parsed: "+ result.split("fat")[0]);
                     break;
                 }
             }

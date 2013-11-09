@@ -109,7 +109,8 @@
                     android:layout_height="wrap_content"
                     android:text="Punches:"
                     android:id="@+id/punch_count"
-                    android:layout_column="1" />
+                    android:layout_column="1"
+                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title" />
 
             </TableRow>
 

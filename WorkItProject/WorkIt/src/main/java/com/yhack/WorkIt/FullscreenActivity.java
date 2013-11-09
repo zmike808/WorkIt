@@ -6,13 +6,26 @@ import com.yhack.WorkIt.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.StrictMode;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -49,11 +62,37 @@ public class FullscreenActivity extends Activity {
      */
     private SystemUiHider mSystemUiHider;
 
+
+    private EditText timeTextbox;
+    private EditText caloriesTextbox;
+
+
+    private static final int REQUEST_ENABLE_BT = 1;
+
+    private static boolean hasBluetooth = true;
+
+    private static BluetoothAdapter bluetoothAdapter;
+
+    private BluetoothThread btThreadLeft;
+    private Handler btHandlerLeft;
+
+    private BluetoothThread btThreadRight;
+    private Handler btHandlerRight;
+
+    private Context context;
+
+    private int numPunchesLeft;
+    private int numPunchesRight;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
+        StrictMode.enableDefaults();
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
         final View contentView = findViewById(R.id.fullscreen_content);
@@ -112,10 +151,171 @@ public class FullscreenActivity extends Activity {
             }
         });
 
+        View.OnTouchListener buttonCallback = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (bluetoothAdapter == null)
+                {
+                    Toast.makeText(context, "Bluetooth is not available on this Device", Toast.LENGTH_LONG).show();
+                    hasBluetooth = false;
+                }
+                else if (!bluetoothAdapter.isEnabled())
+                {
+                    Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
+                }
+                else if (btThreadLeft == null)
+                {
+                    connectBt();
+                }
+
+                //ImageView graph = (ImageView)findViewById(R.id.imageView);
+                //r.Id.time;
+                //r.Id.calories;
+                //manual switching between cal and min for now
+                String mode="boxing";
+                int val=0;
+                String given="";
+                if(timeTextbox.getText().length() == 0){
+                    val=Integer.parseInt(caloriesTextbox.getText().toString());
+                    given="cal";}
+                else{
+                    val=Integer.parseInt(timeTextbox.getText().toString());
+                    given="time";}
+                //String given="min";
+                String qry = mode+" "+val+given;
+                Log.d("myapp", qry);
+                WAQueryGen q = new WAQueryGen(qry);
+
+                TextView tv = (TextView)findViewById(R.id.wolfram_output);
+
+                //ArrayList<WAImage> images = q.getAllImages();
+                ArrayList<String> strings = q.getAllText();
+                String x="";
+                String result="";
+                if (given.equals("cal")) {x="time"; tv.setText("If you want to burn "+val+" Cal while "+mode+":\n");}
+                else {x="energy expenditure"; tv.setText("If you work out for "+val+" minutes while "+mode+":\n");}
+
+                for(String s : strings)
+                {
+                    String[] parts = s.split("\\|");
+                    String key = parts[0].trim();
+                    String value = parts[1].substring(1,parts[1].length()-1).split("fat")[0].split("  ")[0];
+                    if(key.equals(x))
+                    {
+                        result=value;
+                        if(x=="time")
+                        {
+                            tv.setText(tv.getText() + "You should work out for "+result);
+                        }
+                        else
+                        {
+                            tv.setText(tv.getText() + "You will burn "+result);
+                        }
+                        break;
+                    }
+                }
+
+
+                return true;
+            }
+        };
+
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.start_button).setOnTouchListener(buttonCallback);
+        timeTextbox = (EditText)findViewById(R.id.time);
+        caloriesTextbox = (EditText)findViewById(R.id.calories);
+
+        btHandlerLeft = new Handler()
+        {
+            public void handleMessage(Message m)
+            {
+                updateTextLeft((String)m.obj);
+            }
+        };
+
+        btHandlerRight = new Handler()
+        {
+            public void handleMessage(Message m)
+            {
+                updateTextRight((String)m.obj);
+            }
+        };
+
+        context = getApplicationContext();
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+    private void updateTextLeft(String s)
+    {
+        TextView tv = (TextView)findViewById(R.id.punch_count);
+
+        if (s.equals("P"))
+        {
+            numPunchesLeft++;
+        }
+
+        tv.setText("Punches: " + (numPunchesLeft + numPunchesRight));
+    }
+
+    private void updateTextRight(String s)
+    {
+        TextView tv = (TextView)findViewById(R.id.punch_count);
+
+        if (s.equals("P"))
+        {
+            numPunchesRight++;
+        }
+
+        tv.setText("Punches: " + (numPunchesLeft + numPunchesRight));
+    }
+
+    public void connectBt()
+    {
+        if (!hasBluetooth)
+            return;
+
+        String targetNameLeft = "HC-06";
+        String targetNameRight = "Band1";
+        Set<BluetoothDevice> devs = bluetoothAdapter.getBondedDevices();
+        BluetoothDevice devLeft = null, devRight = null;
+        if (devs != null)
+        {
+            for (BluetoothDevice d : devs)
+            {
+                if (d != null && d.getName().equals(targetNameLeft))
+                {
+                    devLeft = d;
+                }
+                if (d != null && d.getName().equals(targetNameRight))
+                {
+                    devRight = d;
+                }
+            }
+        }
+
+        if (devLeft != null)
+        {
+            btThreadLeft = new BluetoothThread(devLeft, btHandlerLeft);
+            btThreadLeft.start();
+        }
+        if (devRight != null)
+        {
+            btThreadRight = new BluetoothThread(devRight, btHandlerRight);
+            btThreadRight.start();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == REQUEST_ENABLE_BT)
+        {
+            Toast.makeText(context, "Bluetooth enabled!", Toast.LENGTH_SHORT).show();
+            connectBt();
+        }
     }
 
     @Override

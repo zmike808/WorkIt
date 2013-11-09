@@ -34,6 +34,10 @@
             android:orientation="horizontal"
             tools:ignore="UselessParent">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/wolfram_output" />
         </LinearLayout>
 
         <TableLayout
@@ -87,17 +91,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
 
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/wolfram_output" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
-
                 <Button android:id="@+id/start_button"
                     style="@style/ButtonBarButton"
                     android:layout_width="wrap_content"
@@ -115,8 +108,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Punches:"
-                    android:id="@+id/button"
+                    android:id="@+id/punch_count"
                     android:layout_column="1" />
+
             </TableRow>
 
         </TableLayout>

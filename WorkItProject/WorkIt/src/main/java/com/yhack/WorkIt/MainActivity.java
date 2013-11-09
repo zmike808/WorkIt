@@ -27,22 +27,7 @@ import java.util.Set;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static final int REQUEST_ENABLE_BT = 1;
 
-    private static boolean hasBluetooth = true;
-
-    private static BluetoothAdapter bluetoothAdapter;
-
-    private BluetoothThread btThreadLeft;
-    private Handler btHandlerLeft;
-
-    private BluetoothThread btThreadRight;
-    private Handler btHandlerRight;
-
-    private Context context;
-
-    private int numPunchesLeft;
-    private int numPunchesRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,38 +35,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         StrictMode.enableDefaults();
 
-        btHandlerLeft = new Handler()
-        {
-          public void handleMessage(Message m)
-          {
-            updateTextLeft((String)m.obj);
-          }
-        };
 
-        btHandlerRight = new Handler()
-        {
-            public void handleMessage(Message m)
-            {
-                updateTextRight((String)m.obj);
-            }
-        };
-
-        context = getApplicationContext();
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null)
-        {
-            Toast.makeText(context, "Bluetooth is not available on this Device", Toast.LENGTH_LONG).show();
-            hasBluetooth = false;
-        }
-        else if (!bluetoothAdapter.isEnabled())
-        {
-            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
-        }
-        else
-        {
-            connectBt();
-        }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -90,83 +44,9 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == REQUEST_ENABLE_BT)
-        {
-            Toast.makeText(context, "Bluetooth enabled!", Toast.LENGTH_SHORT).show();
-            connectBt();
-        }
-    }
 
-    private void updateTextLeft(String s)
-    {
-        TextView tv = (TextView)findViewById(R.id.textView);
 
-        if (s.equals("P"))
-        {
-            numPunchesLeft++;
-        }
 
-        tv.setText("NUMBER OF PUNCHES: " + numPunchesLeft);
-
-        if (numPunchesLeft == 10 || numPunchesLeft == 11)
-            btThreadLeft.vibe();
-    }
-
-    private void updateTextRight(String s)
-    {
-        TextView tv = (TextView)findViewById(R.id.textView);
-
-        if (s.equals("P"))
-        {
-            numPunchesRight++;
-        }
-
-        tv.setText("NUMBER OF PUNCHES: " + numPunchesRight);
-
-        if (numPunchesRight == 10 || numPunchesRight == 11)
-            btThreadRight.vibe();
-    }
-
-    public void connectBt()
-    {
-        if (!hasBluetooth)
-            return;
-
-        String targetNameLeft = "HC-06";
-        String targetNameRight = "Band1";
-        Set<BluetoothDevice> devs = bluetoothAdapter.getBondedDevices();
-        BluetoothDevice devLeft = null, devRight = null;
-        if (devs != null)
-        {
-            for (BluetoothDevice d : devs)
-            {
-                if (d != null && d.getName().equals(targetNameLeft))
-                {
-                    devLeft = d;
-                }
-                if (d != null && d.getName().equals(targetNameRight))
-                {
-                    devRight = d;
-                }
-            }
-        }
-
-        //Log.d("myapp", "TEST");
-
-        if (devLeft != null)
-        {
-            btThreadLeft = new BluetoothThread(devLeft, btHandlerLeft);
-            btThreadLeft.start();
-        }
-        if (devRight != null)
-        {
-            btThreadRight = new BluetoothThread(devRight, btHandlerRight);
-            btThreadRight.start();
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

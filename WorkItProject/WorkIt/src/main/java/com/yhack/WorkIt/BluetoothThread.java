@@ -84,6 +84,16 @@ public class BluetoothThread extends Thread implements Runnable
         btInStream = inStream;
         btOutStream = outStream;
 
+        try
+        {
+            outStream.write(new byte[] { 'p' });
+        }
+        catch (IOException e)
+        {
+            Log.d("nop", "Error opening input stream");
+        }
+
+
         int errorCount = 0;
 
         byte nextByte;

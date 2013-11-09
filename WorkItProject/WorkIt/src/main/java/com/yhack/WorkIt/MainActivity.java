@@ -20,6 +20,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.widget.Toast;
 import android.widget.*;
 
+import java.io.StringBufferInputStream;
 import java.util.ArrayList;
 
 import java.util.Set;
@@ -38,11 +39,14 @@ public class MainActivity extends ActionBarActivity {
 
     private Context context;
 
+    private ArrayList<SensorData> prevData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StrictMode.enableDefaults();
+        prevData = new ArrayList<SensorData>();
 
         btHandler = new Handler()
         {
@@ -88,8 +92,25 @@ public class MainActivity extends ActionBarActivity {
 
     private void updateText(String s)
     {
+        if (prevData.size() > 50)
+            prevData.remove(0);
+
+        SensorData data = new SensorData(s);
+        prevData.add(data);
+
+        float maxX = 0, maxY = 0, maxZ = 0;
+        for (SensorData sd : prevData)
+        {
+            if (Math.abs(sd.getAx()) > Math.abs(maxX))
+                maxX = sd.getAx();
+            if (Math.abs(sd.getAy()) > Math.abs(maxY))
+                maxY = sd.getAy();
+            if (Math.abs(sd.getAz()) > Math.abs(maxZ))
+                maxZ = sd.getAz();
+        }
+
         TextView tv = (TextView)findViewById(R.id.textView);
-        tv.setText(s);
+        tv.setText(new SensorData(s).toString() + "\n" + maxX + "\n" + maxY + "\n" + maxZ);
     }
 
     public void connectBt()

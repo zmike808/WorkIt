@@ -83,14 +83,12 @@ public class BluetoothThread extends Thread implements Runnable
         ArrayList<Byte> packet = new ArrayList<Byte>();
         byte[] buffer;
 
-        Log.d("nop", "STARTING");
-
         while (true)
         {
             try
             {
                 nextByte = (byte)btInStream.read();
-                if (nextByte == '\n')
+                if (nextByte == 'A')
                 {
                     buffer = new byte[packet.size()];
                     for (int i = 0; i < buffer.length; i++)
@@ -101,7 +99,10 @@ public class BluetoothThread extends Thread implements Runnable
                     mHandler.sendMessage(m);
                     packet.clear();
                 }
-                packet.add(nextByte);
+                else
+                {
+                    packet.add(nextByte);
+                }
 
                 errorCount = 0;
             }

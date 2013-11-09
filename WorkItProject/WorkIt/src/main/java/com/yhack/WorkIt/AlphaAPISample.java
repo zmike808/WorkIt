@@ -35,13 +35,11 @@ public class AlphaAPISample {
 
     // PUT YOUR APPID HERE:
     private static String appid = "3JG8K3-EE3J4WYHLH";
-
-    public static void main(String[] args) {
+    private String output;
+    public String alpha() {
 
         // Use "pi" as the default query, or caller can supply it as the lone command-line argument.
         String input = "pi";
-        if (args.length > 0)
-            input = args[0];
 
         // The WAEngine is a factory for creating WAQuery objects,
         // and it also used to perform those queries. You can set properties of
@@ -82,13 +80,13 @@ public class AlphaAPISample {
                 System.out.println("Successful query. Pods follow:\n");
                 for (WAPod pod : queryResult.getPods()) {
                     if (!pod.isError()) {
-                        System.out.println(pod.getTitle());
-                        System.out.println("------------");
+                        output += (pod.getTitle());
+                        output += ("------------");
                         for (WASubpod subpod : pod.getSubpods()) {
                             for (Object element : subpod.getContents()) {
                                 if (element instanceof WAPlainText) {
-                                    System.out.println(((WAPlainText) element).getText());
-                                    System.out.println("");
+                                    output += (((WAPlainText) element).getText());
+                                    output += ("");
                                 }
                             }
                         }
@@ -101,6 +99,8 @@ public class AlphaAPISample {
         } catch (WAException e) {
             e.printStackTrace();
         }
+        return output;
     }
+
 
 }

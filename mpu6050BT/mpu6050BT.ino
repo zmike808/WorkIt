@@ -29,11 +29,28 @@
      pinMode(motorpin, OUTPUT);
     }
     
+    float axg;
+    float ayg;
+    float azg;
+    float gxd;
+    float gyd;
+    float gzd;
+    
     bool vibrate = true;
     void loop() 
     {
       accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
+
+      axg = ax/16384.00;
+      ayg = ay/16384.00;
+      azg = az/16384.00;
+      gxd = gx/ 131.00;
+      if (abs(gxd) < 2){gxd = 0;}
+      gyd = gy/ 131.00;
+      if (abs(gyd) < 2){gyd = 0;}
+      gzd = gz/ 131.00;
+      if (abs(gzd) < 2){gzd = 0;}
       // these methods (and a few others) are also available
       //accelgyro.getAcceleration(&ax, &ay, &az);
       //accelgyro.getRotation(&gx, &gy, &gz);
@@ -41,13 +58,13 @@
         // display tab-separated accel/gyro x/y/z values
        // mySerial.print("a/g:\t");
         mySerial.print("A");
-        mySerial.print(ax); mySerial.print(",");
-        mySerial.print(ay); mySerial.print(",");
-        mySerial.print(az); mySerial.print(",");
+        mySerial.print(axg); mySerial.print(",");
+        mySerial.print(ayg); mySerial.print(",");
+        mySerial.print(azg); mySerial.print(",");
         mySerial.print("G");
-        mySerial.print(gx); mySerial.print(",");
-        mySerial.print(gy); mySerial.print(",");
-        mySerial.print(gz);
+        mySerial.print(gxd); mySerial.print(",");
+        mySerial.print(gyd); mySerial.print(",");
+        mySerial.print(gzd);
         
         //digitalWrite(motorpin, vibrate);
         //vibrate = !vibrate;

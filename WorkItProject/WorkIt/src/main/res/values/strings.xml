@@ -9,5 +9,7 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="timeLabe">Time:</string>
+    <string name="calorieLabel">Calories</string>
 
 </resources>

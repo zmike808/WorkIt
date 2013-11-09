@@ -14,10 +14,11 @@
     int16_t ax, ay, az;
     int16_t gx, gy, gz;
 
-    SoftwareSerial mySerial(2, 3); // RX, TX
+    SoftwareSerial mySerial(3, 4); // RX, TX
     int a=0;
     char c;
     char d;
+    int motorpin = 9;
     void setup()  
     {
      Wire.begin();
@@ -25,9 +26,10 @@
      accelgyro.initialize();
      mySerial.begin(9600);
      mySerial.println("Hello, world?");
-     
+     pinMode(motorpin, OUTPUT);
     }
-
+    
+    bool vibrate = true;
     void loop() 
     {
       accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
@@ -44,5 +46,8 @@
         mySerial.print(gx); mySerial.print("\t");
         mySerial.print(gy); mySerial.print("\t");
         mySerial.println(gz);
-
+        
+        //digitalWrite(motorpin, vibrate);
+        //vibrate = !vibrate;
+        //delay(100);
     }

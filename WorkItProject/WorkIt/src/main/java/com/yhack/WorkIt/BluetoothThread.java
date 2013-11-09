@@ -33,7 +33,7 @@ public class BluetoothThread extends Thread implements Runnable
         }
         catch (IOException e)
         {
-            Log.d("myapp", "Error creating the bluetooth stream");
+            Log.d("nop", "Error creating the bluetooth stream");
         }
 
         btSocket = tempSocket;
@@ -48,14 +48,14 @@ public class BluetoothThread extends Thread implements Runnable
         }
         catch (IOException e)
         {
-            Log.d("myapp", "Error connecting to the bluetooth stream");
+            Log.d("nop", "Error connecting to the bluetooth stream");
             try
             {
                 btSocket.close();
             }
             catch (IOException ee)
             {
-                Log.d("myapp", "Error closing the socket");
+                Log.d("nop", "Error closing the socket");
             }
             return;
         }
@@ -68,7 +68,7 @@ public class BluetoothThread extends Thread implements Runnable
         }
         catch (IOException e)
         {
-            Log.d("myapp", "Error opening input stream");
+            Log.d("nop", "Error opening input stream");
         }
 
         btInStream = inStream;
@@ -79,7 +79,7 @@ public class BluetoothThread extends Thread implements Runnable
         ArrayList<Byte> packet = new ArrayList<Byte>();
         byte[] buffer;
 
-        Log.d("myapp", "STARTING");
+        Log.d("nop", "STARTING");
 
         while (true)
         {
@@ -93,7 +93,7 @@ public class BluetoothThread extends Thread implements Runnable
                         buffer[i] = packet.get(i);
 
                     currentData = new String(buffer);
-                    Log.d("myapp", currentData);
+                    Log.d("nop", currentData);
                     packet.clear();
                 }
                 packet.add(nextByte);
@@ -102,12 +102,12 @@ public class BluetoothThread extends Thread implements Runnable
             }
             catch (Exception e)
             {
-                Log.e("myapp", "Something went wrong reading data!");
+                Log.e("nop", "Something went wrong reading data!");
                 errorCount++;
 
                 if (errorCount > 100)
                 {
-                    Log.e("myapp", "Stopping bluetooth thread");
+                    Log.e("nop", "Stopping bluetooth thread");
                     break;
                 }
             }

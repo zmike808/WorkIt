@@ -97,6 +97,8 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
+        //Log.d("myapp", "TEST");
+
         if (dev != null)
         {
             btThread = new BluetoothThread(dev);
@@ -132,9 +134,30 @@ public class MainActivity extends ActionBarActivity {
         public PlaceholderFragment() {
 
             ImageView graph = (ImageView)findViewById(R.id.imageView);
-            WAQueryGen q = new WAQueryGen("pi");
+            WAQueryGen q = new WAQueryGen("boxing 1000cal");
             ArrayList<WAImage> images = q.getAllImages();
-           
+            ArrayList<String> strings = q.getAllText();
+            String given="cal";
+            String x="";
+            String result="";
+            if (given.equals("cal")) {x="time";} else {x="energy expenditure";}
+
+            for(String s : strings)
+            {
+                String[] parts = s.split("\\|");
+                String key = parts[0].trim();
+                String value = parts[1].substring(1,parts[1].length()-1).split("  ")[0];
+                //Log.d("myapp",s+"\n");
+                if(key.equals(x))
+                {
+                    result=value;
+                    if(x=="time")
+                        Log.d("myapp","Workout Time: "+result);
+                    else
+                        Log.d("myapp","Calorie Burn: "+result);
+                    break;
+                }
+            }
 
         }
 

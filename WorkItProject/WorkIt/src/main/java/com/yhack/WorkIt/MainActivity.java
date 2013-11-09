@@ -29,6 +29,8 @@ public class MainActivity extends ActionBarActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_IS_PAIRED = 2;
 
+    private static boolean hasBluetooth = true;
+
     private static BluetoothAdapter bluetoothAdapter;
 
     private BluetoothThread btThread;
@@ -46,8 +48,7 @@ public class MainActivity extends ActionBarActivity {
         if (bluetoothAdapter == null)
         {
             Toast.makeText(context, "Bluetooth is not available on this Device", Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            hasBluetooth = false;
         }
         else if (!bluetoothAdapter.isEnabled())
         {
@@ -78,6 +79,9 @@ public class MainActivity extends ActionBarActivity {
 
     public void connectBt()
     {
+        if (!hasBluetooth)
+            return;
+
         String targetName = "Band1";
         Set<BluetoothDevice> devs = bluetoothAdapter.getBondedDevices();
         BluetoothDevice dev = null;
@@ -92,8 +96,6 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         }
-
-        Log.d("myapp", "TEST");
 
         if (dev != null)
         {
